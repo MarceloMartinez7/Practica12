@@ -1,6 +1,6 @@
-import { Card, Col } from "react-bootstrap";
+import { Card, Col, Button } from "react-bootstrap";
 
-const TarjetaProducto = ({ producto }) => {
+const TarjetaProducto = ({ producto, onEdit }) => {
   return (
     <Col lg={3} md={4} sm={12} className="mb-4">
       <Card>
@@ -13,6 +13,10 @@ const TarjetaProducto = ({ producto }) => {
             Precio: C${producto.precio} <br />
             Categoría: {producto.categoria}
           </Card.Text>
+
+          <Button variant="warning" onClick={() => onEdit(producto)}>
+            Editar
+          </Button>
         </Card.Body>
       </Card>
     </Col>
