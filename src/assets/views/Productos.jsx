@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Button } from "react-bootstrap";
 import { db } from "../database/firebaseconfig";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   collection,
   getDocs,
@@ -14,39 +13,45 @@ import TablaProductos from "../components/Productos/TablaProductos";
 import ModalRegistroProducto from "../components/Productos/ModalRegistroProducto";
 import ModalEdicionProducto from "../components/Productos/ModalEdicionProducto";
 import ModalEliminacionProducto from "../components/Productos/ModalEliminacionProducto";
+import CuadroBusqueda from "../components/Busquedas/CuadroBusquedas";
 
 const Productos = () => {
-  // Estados para manejo de datos
   const [productos, setProductos] = useState([]);
+  const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [categorias, setCategorias] = useState([]);
+  const [searchText, setSearchText] = useState("");
+
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: "",
     precio: "",
     categoria: "",
-    imagen: ""
+    imagen: "",
   });
+
   const [productoEditado, setProductoEditado] = useState(null);
   const [productoAEliminar, setProductoAEliminar] = useState(null);
 
-  // Referencia a las colecciones en Firestore
   const productosCollection = collection(db, "productos");
   const categoriasCollection = collection(db, "categorias");
 
-  // Función para obtener todas las categorías y productos de Firestore
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const fetchData = async () => {
     try {
-      // Obtener productos
       const productosData = await getDocs(productosCollection);
       const fetchedProductos = productosData.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
       }));
       setProductos(fetchedProductos);
+      setProductosFiltrados(fetchedProductos);
 
-      // Obtener categorías
       const categoriasData = await getDocs(categoriasCollection);
       const fetchedCategorias = categoriasData.docs.map((doc) => ({
         ...doc.data(),
@@ -58,24 +63,26 @@ const Productos = () => {
     }
   };
 
-  // Hook useEffect para carga inicial de datos
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const handleSearchChange = (e) => {
+    const text = e.target.value.toLowerCase();
+    setSearchText(text);
+    const filtrados = productos.filter((producto) =>
+      producto.nombre.toLowerCase().includes(text) ||
+      producto.categoria.toLowerCase().includes(text)
+    );
+    setProductosFiltrados(filtrados);
+  };
 
-  // Manejador de cambios en inputs del formulario de nuevo producto
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNuevoProducto((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Manejador de cambios en inputs del formulario de edición
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
     setProductoEditado((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Manejador para la carga de imágenes
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -98,7 +105,6 @@ const Productos = () => {
     }
   };
 
-  // Función para agregar un nuevo producto (CREATE)
   const handleAddProducto = async () => {
     if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.categoria) {
       alert("Por favor, completa todos los campos requeridos.");
@@ -108,13 +114,12 @@ const Productos = () => {
       await addDoc(productosCollection, nuevoProducto);
       setShowModal(false);
       setNuevoProducto({ nombre: "", precio: "", categoria: "", imagen: "" });
-      await fetchData();
+      fetchData();
     } catch (error) {
       console.error("Error al agregar producto:", error);
     }
   };
 
-  // Función para actualizar un producto existente (UPDATE)
   const handleEditProducto = async () => {
     try {
       const productoRef = doc(db, "productos", productoEditado.id);
@@ -122,59 +127,58 @@ const Productos = () => {
         nombre: productoEditado.nombre,
         precio: productoEditado.precio,
         categoria: productoEditado.categoria,
-        imagen: productoEditado.imagen, // Asegúrate de manejar la imagen correctamente
+        imagen: productoEditado.imagen,
       });
-  
       alert("Producto actualizado correctamente");
-  
-      setShowEditModal(false); // Cierra el modal
-  
-      fetchData(); // ✅ Recargar los datos en el catálogo automáticamente
+      setShowEditModal(false);
+      fetchData();
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
       alert("Error al actualizar el producto");
     }
-  }
+  };
 
-  // Función para eliminar un producto (DELETE)
   const handleDeleteProducto = async () => {
     if (productoAEliminar) {
       try {
         const productoRef = doc(db, "productos", productoAEliminar.id);
         await deleteDoc(productoRef);
         setShowDeleteModal(false);
-        await fetchData();
+        fetchData();
       } catch (error) {
         console.error("Error al eliminar producto:", error);
       }
     }
   };
 
-  // Función para abrir el modal de edición con datos prellenados
   const openEditModal = (producto) => {
     setProductoEditado({ ...producto });
     setShowEditModal(true);
   };
 
-  // Función para abrir el modal de eliminación
   const openDeleteModal = (producto) => {
     setProductoAEliminar(producto);
     setShowDeleteModal(true);
   };
 
-  // Renderizado del componente
   return (
     <Container className="mt-5">
-      <br />
       <h4>Gestión de Productos</h4>
       <Button className="mb-3" onClick={() => setShowModal(true)}>
         Agregar producto
       </Button>
+
+      <CuadroBusqueda
+        searchText={searchText}
+        handleSearchChange={handleSearchChange}
+      />
+
       <TablaProductos
-        productos={productos}
+        productos={productosFiltrados}
         openEditModal={openEditModal}
         openDeleteModal={openDeleteModal}
       />
+
       <ModalRegistroProducto
         showModal={showModal}
         setShowModal={setShowModal}
@@ -184,6 +188,7 @@ const Productos = () => {
         handleAddProducto={handleAddProducto}
         categorias={categorias}
       />
+
       <ModalEdicionProducto
         showEditModal={showEditModal}
         setShowEditModal={setShowEditModal}
@@ -193,6 +198,7 @@ const Productos = () => {
         handleEditProducto={handleEditProducto}
         categorias={categorias}
       />
+
       <ModalEliminacionProducto
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}

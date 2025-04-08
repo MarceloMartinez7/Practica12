@@ -16,6 +16,7 @@ import TablaCategorias from "../components/Categorias/TablaCategorias";
 import ModalRegistroCategoria from "../components/Categorias/ModalRegistroCategoria";
 import ModalEdicionCategoria from "../components/Categorias/ModalEdicionCategoria";
 import ModalEliminacionCategoria from "../components/Categorias/ModalEliminacionCategoria";
+import CuadroBusqueda from "../components/Busquedas/CuadroBusquedas";
 
 
 const Categorias = () => {

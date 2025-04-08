@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Form, Col } from "react-bootstrap";
+import { Container, Row, Form, Col, Button } from "react-bootstrap";
 import { db } from "../database/firebaseconfig";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import TarjetaProducto from "../components/Productos/TarjetaProducto";
 import ModalEdicionProducto from "../components/Productos/ModalEdicionProducto";
-import { Button } from "react-bootstrap";
+import CuadroBusqueda from "../components/Busquedas/CuadroBusquedas";
 
 const Catalogo = () => {
   const [productos, setProductos] = useState([]);
+  const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todas");
+  const [searchText, setSearchText] = useState("");
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [productoEditado, setProductoEditado] = useState(null);
@@ -43,18 +45,38 @@ const Catalogo = () => {
     fetchData();
   }, []);
 
-  // Función para abrir el modal de edición con el producto seleccionado
+  // Actualizar productos filtrados cada vez que cambian productos, búsqueda o categoría
+  useEffect(() => {
+    let filtrados = [...productos];
+
+    if (categoriaSeleccionada !== "Todas") {
+      filtrados = filtrados.filter(
+        (producto) => producto.categoria === categoriaSeleccionada
+      );
+    }
+
+    if (searchText.trim() !== "") {
+      const texto = searchText.toLowerCase();
+      filtrados = filtrados.filter(
+        (producto) =>
+          producto.nombre.toLowerCase().includes(texto) ||
+          producto.categoria.toLowerCase().includes(texto)
+      );
+    }
+
+    setProductosFiltrados(filtrados);
+  }, [productos, categoriaSeleccionada, searchText]);
+
+  // Abrir modal de edición
   const handleEditClick = (producto) => {
     setProductoEditado(producto);
     setShowEditModal(true);
   };
 
-  // Función para manejar cambios en el formulario de edición
   const handleEditInputChange = (e) => {
     setProductoEditado({ ...productoEditado, [e.target.name]: e.target.value });
   };
 
-  // Función para manejar la carga de una nueva imagen
   const handleEditImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -63,7 +85,6 @@ const Catalogo = () => {
     }
   };
 
-  // Función para actualizar el producto en Firebase
   const handleEditProducto = async () => {
     if (!productoEditado) return;
     try {
@@ -84,20 +105,14 @@ const Catalogo = () => {
     }
   };
 
-  // Filtrar productos por categoría
-  const productosFiltrados =
-    categoriaSeleccionada === "Todas"
-      ? productos
-      : productos.filter((producto) => producto.categoria === categoriaSeleccionada);
-
   return (
     <Container className="mt-5">
-      <br />
       <h4>Catálogo de Productos</h4>
-      {/* Filtro de categorías */}
-      <Row>
-        <Col lg={3} md={3} sm={6}>
-          <Form.Group className="mb-3">
+
+      {/* Filtro de categoría y botón de actualizar */}
+      <Row className="mb-3">
+        <Col lg={3} md={4} sm={6}>
+          <Form.Group>
             <Form.Label>Filtrar por categoría:</Form.Label>
             <Form.Select
               value={categoriaSeleccionada}
@@ -111,20 +126,31 @@ const Catalogo = () => {
               ))}
             </Form.Select>
           </Form.Group>
-          {/* Botón de actualización */}
-          <Button variant="primary" onClick={fetchData}>
+          <Button className="mt-2" variant="primary" onClick={fetchData}>
             Actualizar
           </Button>
         </Col>
+
+        <Col lg={6} md={8} sm={12}>
+          <CuadroBusqueda
+            searchText={searchText}
+            handleSearchChange={(e) => setSearchText(e.target.value)}
+          />
+        </Col>
       </Row>
-      {/* Catálogo de productos filtrados */}
+
+      {/* Lista de productos */}
       <Row>
         {productosFiltrados.length > 0 ? (
           productosFiltrados.map((producto) => (
-            <TarjetaProducto key={producto.id} producto={producto} onEdit={handleEditClick} />
+            <TarjetaProducto
+              key={producto.id}
+              producto={producto}
+              onEdit={handleEditClick}
+            />
           ))
         ) : (
-          <p>No hay productos en esta categoría.</p>
+          <p>No hay productos que coincidan con la búsqueda o la categoría.</p>
         )}
       </Row>
 
@@ -143,4 +169,3 @@ const Catalogo = () => {
 };
 
 export default Catalogo;
-
