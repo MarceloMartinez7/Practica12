@@ -21,6 +21,26 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+  // Efecto para detectar el estado de conexión (online / offline)
+  useEffect(() => {
+    const handleOnline = () => {
+      console.log("¡Conexión restablecida!");
+      alert("¡Conexión restablecida!");
+    };
+    const handleOffline = () => {
+      console.log("Estás offline. Los cambios se sincronizarán cuando vuelvas a conectarte.");
+      alert("Estás offline. Los cambios se sincronizarán cuando vuelvas a conectarte.");
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
   // Función para cerrar sesión
   const logout = async () => {
     const auth = getAuth(appfirebase);
