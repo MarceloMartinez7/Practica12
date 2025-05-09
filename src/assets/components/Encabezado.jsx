@@ -114,6 +114,10 @@ const Encabezado = () => {
                 {isCollapsed && <i className="bi-cloud-sun-fill me-2"></i>}
                 <strong>Clima</strong>
               </Nav.Link>
+
+              <Nav.Link onClick={() => handleNavigate("/pronunciacion")} className="text-white">
+            Pronunciacion
+          </Nav.Link>
   
               {isLoggedIn ? (
                 <Nav.Link
