@@ -51,7 +51,7 @@ const Encabezado = () => {
           />{" "}
           <strong>Ferretería</strong>
         </Navbar.Brand>
-  
+
         <Navbar.Toggle aria-controls="offcanvasNavbar-expand-sm" onClick={handleToggle} />
         <Navbar.Offcanvas
           id="offcanvasNavbar-expand-sm"
@@ -68,7 +68,7 @@ const Encabezado = () => {
               Menú
             </Offcanvas.Title>
           </Offcanvas.Header>
-  
+
           <Offcanvas.Body>
             <Nav className="justify-content-end flex-grow-1 pe-3">
               <Nav.Link
@@ -78,35 +78,35 @@ const Encabezado = () => {
                 {isCollapsed && <i className="bi-house-door-fill me-2"></i>}
                 <strong>Inicio</strong>
               </Nav.Link>
-  
+
               <Nav.Link
                 onClick={() => handleNavigate("/libros")}
                 className={isCollapsed ? "color-texto-marca" : "text-white"}
               >
                 Libros
               </Nav.Link>
-  
+
               <Nav.Link
                 onClick={() => handleNavigate("/productos")}
                 className={isCollapsed ? "color-texto-marca" : "text-white"}
               >
                 Productos
               </Nav.Link>
-  
+
               <Nav.Link
                 onClick={() => handleNavigate("/catalogo")}
                 className={isCollapsed ? "color-texto-marca" : "text-white"}
               >
                 Catálogo
               </Nav.Link>
-  
+
               <Nav.Link
                 onClick={() => handleNavigate("/categorias")}
                 className={isCollapsed ? "color-texto-marca" : "text-white"}
               >
                 Categorías
               </Nav.Link>
-  
+
               <Nav.Link
                 onClick={() => handleNavigate("/clima")}
                 className={isCollapsed ? "color-texto-marca" : "text-white"}
@@ -115,10 +115,20 @@ const Encabezado = () => {
                 <strong>Clima</strong>
               </Nav.Link>
 
-              <Nav.Link onClick={() => handleNavigate("/pronunciacion")} className="text-white">
-            Pronunciacion
-          </Nav.Link>
-  
+              <Nav.Link
+                onClick={() => handleNavigate("/pronunciacion")}
+                className={isCollapsed ? "color-texto-marca" : "text-white"}
+              >
+                Pronunciación
+              </Nav.Link>
+
+              <Nav.Link
+                onClick={() => handleNavigate("/Estadisticas")}
+                className={isCollapsed ? "color-texto-marca" : "text-white"}
+              >
+                Estadísticas
+              </Nav.Link>
+
               {isLoggedIn ? (
                 <Nav.Link
                   onClick={handleLogout}
@@ -140,7 +150,6 @@ const Encabezado = () => {
       </Container>
     </Navbar>
   );
-  
 };
 
 export default Encabezado;
