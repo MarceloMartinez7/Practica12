@@ -14,8 +14,12 @@ import ModalRegistroProducto from "../components/Productos/ModalRegistroProducto
 import ModalEdicionProducto from "../components/Productos/ModalEdicionProducto";
 import ModalEliminacionProducto from "../components/Productos/ModalEliminacionProducto";
 import CuadroBusquedas from "../components/Busquedas/CuadroBusquedas";
+import ModalQR from "../components/qr/ModalQr";
+
 
 const Productos = () => {
+    const [showQRModal, setShowQRModal] = useState(false);
+  const [selectedUrl, setSelectedUrl] = useState("");
   const [productos, setProductos] = useState([]);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -41,6 +45,28 @@ const Productos = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  //Metodos para el QR
+  const openQRModal = (url) =>{
+    setShowQRModal(url);
+    setSelectedUrl("");
+  }
+
+  const handleCloseQRModal = () => {
+    setShowQRModal(false);
+    selectedUrl("");
+  }
+
+  const handleCopy = (productos) =>{
+    const rowData = `Nombre: ${productos.nombre}\nPrecio: C$${productos.precio}\nCategoria: ${productos.categoria}`;
+    
+
+    navigator.clipboard
+    .writeText(rowData)
+    .then(() =>{
+      console.log("Error el copiar al portapapeles", err);
+    });
+  };
 
   const fetchData = () => {
     // Escuchar productos
@@ -346,6 +372,8 @@ const Productos = () => {
       <TablaProductos
         openEditModal={openEditModal}
         openDeleteModal={openDeleteModal}
+        handleCopy={handleCopy}
+        openQRModal={openQRModal}
         productos={paginatedProductos}
         totalItems={productosFiltrados.length}
         itemsPerPage={itemsPerPage}
@@ -374,7 +402,14 @@ const Productos = () => {
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}
         handleDeleteProducto={handleDeleteProducto}
+        
       />
+
+      <ModalQR
+      show={showQRModal}
+      handleClose={handleCloseQRModal}
+      qrUrl={selectedUrl}
+       />
     </Container>
   );
 };

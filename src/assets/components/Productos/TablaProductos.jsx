@@ -3,16 +3,10 @@ import { Table, Button, Image } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Paginacion from "../Ordenamiento/Paginacion";
 
-const TablaProductos = ({ productos, openEditModal, openDeleteModal }) => {
+const TablaProductos = ({ productos, openEditModal, openDeleteModal, openQRModal, handleCopy }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Productos por página
+  const itemsPerPage = 5;
   const totalItems = productos.length;
-
-  // Calcular productos paginados
-  const paginatedProductos = productos.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
 
   return (
     <>
@@ -27,7 +21,7 @@ const TablaProductos = ({ productos, openEditModal, openDeleteModal }) => {
           </tr>
         </thead>
         <tbody>
-          {paginatedProductos.map((producto) => (
+          {productos.map((producto) => (
             <tr key={producto.id}>
               <td>
                 {producto.imagen && (
@@ -49,9 +43,25 @@ const TablaProductos = ({ productos, openEditModal, openDeleteModal }) => {
                 <Button
                   variant="outline-danger"
                   size="sm"
+                  className="me-2"
                   onClick={() => openDeleteModal(producto)}
                 >
                   <i className="bi bi-trash"></i>
+                </Button>
+                <Button
+                  variant="outline-dark"
+                  size="sm"
+                  className="me-2"
+                  onClick={() => openQRModal(producto.pdfUrl)}
+                >
+                  <i className="bi bi-qr-code"></i>
+                </Button>
+                <Button
+                  variant="outline-info"
+                  size="sm"
+                  onClick={() => handleCopy(producto)}
+                >
+                  <i className="bi bi-clipboard"></i>
                 </Button>
               </td>
             </tr>
