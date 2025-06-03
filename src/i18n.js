@@ -6,7 +6,7 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    fallbackLng: 'es', // ← corregido de "fallbacking"
+    fallbackLng: 'es',
     interpolation: {
       escapeValue: false,
     },
@@ -21,12 +21,13 @@ i18n
             libros: "Books",
             clima: "Weather",
             pronunciacion: "Pronunciation",
+            empleados: "Employees",         
             estadisticas: "Statistics",
             cerrarSesion: "Logout",
             iniciarSesion: "Login",
             idioma: "Language",
             español: "Spanish",
-            ingles: "English"
+            ingles: "English",
           }
         }
       },
@@ -40,16 +41,17 @@ i18n
             libros: "Libros",
             clima: "Clima",
             pronunciacion: "Pronunciación",
-            estadisticas: "Estadísticas",
+            empleados: "Empleados",         
+            estadisticas: "Estadisticas",
             cerrarSesion: "Cerrar Sesión",
             iniciarSesion: "Iniciar Sesión",
             idioma: "Idioma",
             español: "Español",
-            ingles: "Inglés"
+            ingles: "Inglés",
           }
         }
       }
-    }
+    },
   });
 
 export default i18n;

@@ -109,6 +109,11 @@ const Encabezado = () => {
                 {t('menu.pronunciacion')}
               </Nav.Link>
 
+              {/* NUEVO BLOQUE: Empleados */}
+              <Nav.Link onClick={() => handleNavigate("/Empleados")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
+                {t('menu.empleados')}
+              </Nav.Link>
+
               <Nav.Link onClick={() => handleNavigate("/Estadisticas")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
                 {t('menu.estadisticas')}
               </Nav.Link>
