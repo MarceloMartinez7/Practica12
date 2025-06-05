@@ -11,13 +11,30 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import "../App.css";
 import { useTranslation } from 'react-i18next';
 
+
+const menuItems = [
+  { path: "/inicio", icon: "bi-house-door-fill", label: "menu.inicio" },
+  { path: "/categorias", label: "menu.categorias" },
+  { path: "/productos", label: "menu.productos" },
+  { path: "/catalogo", label: "menu.catalogo" },
+  { path: "/libros", label: "menu.libros" },
+  { path: "/clima", icon: "bi-cloud-sun-fill", label: "menu.clima" },
+  { path: "/pronunciacion", label: "menu.pronunciacion" },
+  { path: "/empleados", label: "menu.empleados" },
+  { path: "/estadisticas", label: "menu.estadisticas" },
+];
+
 const Encabezado = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
   const { t, i18n } = useTranslation();
+
+  const handleNavigate = (path) => {
+    navigate(path);
+    setIsCollapsed(false);
+  };
 
   const handleLogout = async () => {
     try {
@@ -31,16 +48,7 @@ const Encabezado = () => {
     }
   };
 
-  const handleToggle = () => setIsCollapsed(!isCollapsed);
-
-  const handleNavigate = (path) => {
-    navigate(path);
-    setIsCollapsed(false);
-  };
-
-  const cambiarIdioma = (lang) => {
-    i18n.changeLanguage(lang);
-  };
+  const cambiarIdioma = (lang) => i18n.changeLanguage(lang);
 
   return (
     <Navbar expand="sm" fixed="top" className="color-navbar">
@@ -57,66 +65,34 @@ const Encabezado = () => {
             height="30"
             className="d-inline-block align-top"
           />{" "}
-          <strong>Ferretería</strong>
+          Ferretería
         </Navbar.Brand>
 
-        <Navbar.Toggle aria-controls="offcanvasNavbar-expand-sm" onClick={handleToggle} />
+        <Navbar.Toggle aria-controls="offcanvasNavbar" onClick={() => setIsCollapsed(!isCollapsed)} />
         <Navbar.Offcanvas
-          id="offcanvasNavbar-expand-sm"
-          aria-labelledby="offcanvasNavbarLabel-expand-sm"
+          id="offcanvasNavbar"
           placement="end"
           show={isCollapsed}
           onHide={() => setIsCollapsed(false)}
         >
           <Offcanvas.Header closeButton>
-            <Offcanvas.Title
-              id="offcanvasNavbarLabel-expand-sm"
-              className={isCollapsed ? "color-texto-marca" : "text-white"}
-            >
-              Menú
+            <Offcanvas.Title className="color-texto-marca">
+              {t("menu.titulo") || "Menú"}
             </Offcanvas.Title>
           </Offcanvas.Header>
 
           <Offcanvas.Body>
             <Nav className="justify-content-end flex-grow-1 pe-3">
-              <Nav.Link onClick={() => handleNavigate("/inicio")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
-                {isCollapsed && <i className="bi-house-door-fill me-2"></i>}
-                <strong>{t('menu.inicio')}</strong>
-              </Nav.Link>
-
-              <Nav.Link onClick={() => handleNavigate("/categorias")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
-                {t('menu.categorias')}
-              </Nav.Link>
-
-              <Nav.Link onClick={() => handleNavigate("/productos")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
-                {t('menu.productos')}
-              </Nav.Link>
-
-              <Nav.Link onClick={() => handleNavigate("/catalogo")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
-                {t('menu.catalogo')}
-              </Nav.Link>
-
-              <Nav.Link onClick={() => handleNavigate("/libros")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
-                {t('menu.libros')}
-              </Nav.Link>
-
-              <Nav.Link onClick={() => handleNavigate("/clima")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
-                {isCollapsed && <i className="bi-cloud-sun-fill me-2"></i>}
-                <strong>{t('menu.clima')}</strong>
-              </Nav.Link>
-
-              <Nav.Link onClick={() => handleNavigate("/pronunciacion")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
-                {t('menu.pronunciacion')}
-              </Nav.Link>
-
-              {/* NUEVO BLOQUE: Empleados */}
-              <Nav.Link onClick={() => handleNavigate("/Empleados")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
-                {t('menu.empleados')}
-              </Nav.Link>
-
-              <Nav.Link onClick={() => handleNavigate("/Estadisticas")} className={isCollapsed ? "color-texto-marca" : "text-white"}>
-                {t('menu.estadisticas')}
-              </Nav.Link>
+              {menuItems.map(({ path, icon, label }) => (
+                <Nav.Link
+                  key={path}
+                  onClick={() => handleNavigate(path)}
+                  className={isCollapsed ? "color-texto-marca" : "text-white"}
+                >
+                  {isCollapsed && icon && <i className={`${icon} me-2`}></i>}
+                  {t(label)}
+                </Nav.Link>
+              ))}
 
               <NavDropdown
                 title={
@@ -125,14 +101,14 @@ const Encabezado = () => {
                     {isCollapsed && <span>{t('menu.idioma')}</span>}
                   </span>
                 }
-                id="basic-nav-dropdown"
+                id="language-dropdown"
                 className={isCollapsed ? "color-texto-marca" : "text-white"}
               >
                 <NavDropdown.Item onClick={() => cambiarIdioma('es')} className="text-black">
-                  <strong>{t('menu.español')}</strong>
+                  {t('menu.español')}
                 </NavDropdown.Item>
                 <NavDropdown.Item onClick={() => cambiarIdioma('en')} className="text-black">
-                  <strong>{t('menu.ingles')}</strong>
+                  {t('menu.ingles')}
                 </NavDropdown.Item>
               </NavDropdown>
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Form, Col, Button } from "react-bootstrap";
-import { db } from "../database/firebaseconfig";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { db } from "../database/firebaseconfig";
+
 import TarjetaProducto from "../components/Productos/TarjetaProducto";
 import ModalEdicionProducto from "../components/Productos/ModalEdicionProducto";
 import CuadroBusqueda from "../components/Busquedas/CuadroBusquedas";
@@ -19,23 +20,22 @@ const Catalogo = () => {
   const productosCollection = collection(db, "productos");
   const categoriasCollection = collection(db, "categorias");
 
+  // Obtener productos y categorías desde Firestore
   const fetchData = async () => {
     try {
-      // Obtener productos
-      const productosData = await getDocs(productosCollection);
-      const fetchedProductos = productosData.docs.map((doc) => ({
+      const productosSnapshot = await getDocs(productosCollection);
+      const productosList = productosSnapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id,
       }));
-      setProductos(fetchedProductos);
+      setProductos(productosList);
 
-      // Obtener categorías
-      const categoriasData = await getDocs(categoriasCollection);
-      const fetchedCategorias = categoriasData.docs.map((doc) => ({
+      const categoriasSnapshot = await getDocs(categoriasCollection);
+      const categoriasList = categoriasSnapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id,
       }));
-      setCategorias(fetchedCategorias);
+      setCategorias(categoriasList);
     } catch (error) {
       console.error("Error al obtener datos:", error);
     }
@@ -45,20 +45,20 @@ const Catalogo = () => {
     fetchData();
   }, []);
 
-  // Actualizar productos filtrados cada vez que cambian productos, búsqueda o categoría
+  // Filtro dinámico por categoría y búsqueda
   useEffect(() => {
     let filtrados = [...productos];
 
     if (categoriaSeleccionada !== "Todas") {
       filtrados = filtrados.filter(
-        (producto) => producto.categoria === categoriaSeleccionada
+        producto => producto.categoria === categoriaSeleccionada
       );
     }
 
     if (searchText.trim() !== "") {
       const texto = searchText.toLowerCase();
       filtrados = filtrados.filter(
-        (producto) =>
+        producto =>
           producto.nombre.toLowerCase().includes(texto) ||
           producto.categoria.toLowerCase().includes(texto)
       );
@@ -73,18 +73,21 @@ const Catalogo = () => {
     setShowEditModal(true);
   };
 
+  // Actualización en los campos del modal
   const handleEditInputChange = (e) => {
-    setProductoEditado({ ...productoEditado, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setProductoEditado(prev => ({ ...prev, [name]: value }));
   };
 
   const handleEditImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setProductoEditado({ ...productoEditado, imagen: imageUrl });
+      setProductoEditado(prev => ({ ...prev, imagen: imageUrl }));
     }
   };
 
+  // Guardar cambios editados
   const handleEditProducto = async () => {
     if (!productoEditado) return;
     try {
@@ -98,7 +101,7 @@ const Catalogo = () => {
 
       alert("Producto actualizado correctamente");
       setShowEditModal(false);
-      fetchData(); // Recargar datos
+      fetchData();
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
       alert("Error al actualizar el producto");
@@ -109,7 +112,7 @@ const Catalogo = () => {
     <Container className="mt-5">
       <h4>Catálogo de Productos</h4>
 
-      {/* Filtro de categoría y botón de actualizar */}
+      {/* Filtros: Categoría y búsqueda */}
       <Row className="mb-3">
         <Col lg={3} md={4} sm={6}>
           <Form.Group>
@@ -119,9 +122,9 @@ const Catalogo = () => {
               onChange={(e) => setCategoriaSeleccionada(e.target.value)}
             >
               <option value="Todas">Todas</option>
-              {categorias.map((categoria) => (
-                <option key={categoria.id} value={categoria.nombre}>
-                  {categoria.nombre}
+              {categorias.map((cat) => (
+                <option key={cat.id} value={cat.nombre}>
+                  {cat.nombre}
                 </option>
               ))}
             </Form.Select>
@@ -154,7 +157,7 @@ const Catalogo = () => {
         )}
       </Row>
 
-      {/* Modal de edición */}
+      {/* Modal de edición de producto */}
       <ModalEdicionProducto
         showEditModal={showEditModal}
         setShowEditModal={setShowEditModal}
